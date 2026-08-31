@@ -126,7 +126,7 @@ export default function App() {
       audioEngine.playStaticBurst();
 
       // Trigger System Notification
-      if (Notification.permission === 'granted') {
+      if ('Notification' in window && Notification.permission === 'granted') {
         new Notification(alert.title, {
           body: alert.message,
           icon: '/logo.png', // Will fallback nicely
@@ -212,7 +212,7 @@ export default function App() {
     channel.close();
 
     // Trigger local system notification if permissions granted
-    if (Notification.permission === 'granted') {
+    if ('Notification' in window && Notification.permission === 'granted') {
       new Notification(newAlert.title, {
         body: newAlert.message,
         icon: station.logoUrl || '/logo.png',
