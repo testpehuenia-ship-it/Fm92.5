@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: #0A0A0F;
+    color: #e4e1e9;
+  }
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  border-right: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.glass-panel-neon {
+  background: rgba(10, 10, 15, 0.65);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(0, 102, 255, 0.5);
+  box-shadow: 0 0 20px rgba(0, 102, 255, 0.25), inset 0 0 15px rgba(0, 102, 255, 0.1);
+}
+
+.glass-panel-modal {
+  background: rgba(8, 8, 12, 0.75);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 102, 255, 0.15);
+}
+
+.neon-text-primary {
+  text-shadow: 0 0 12px rgba(0, 102, 255, 0.6), 0 0 24px rgba(0, 102, 255, 0.25);
+}
+
+.neon-text-secondary {
+  text-shadow: 0 0 12px rgba(255, 36, 228, 0.6), 0 0 24px rgba(255, 36, 228, 0.25);
+}
+
+.neon-glow-primary {
+  box-shadow: 0 0 15px rgba(0, 102, 255, 0.45);
+}
+
+.neon-glow-secondary {
+  box-shadow: 0 0 15px rgba(255, 36, 228, 0.45);
+}
+
+.neon-glow-green {
+  box-shadow: 0 0 18px rgba(37, 211, 102, 0.5);
+}
+
+/* Custom Scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #131318;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a292f;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #0066ff;
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.03); }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s infinite ease-in-out;
+}
+
+@keyframes neon-breathe {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(0, 102, 255, 0.4), inset 0 0 10px rgba(0, 102, 255, 0.2);
+    border-color: rgba(0, 102, 255, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(0, 102, 255, 1), inset 0 0 25px rgba(0, 102, 255, 0.6);
+    border-color: rgba(0, 102, 255, 1);
+  }
+}
+
+.animate-neon-breathe {
+  animation: neon-breathe 4s ease-in-out infinite;
+}

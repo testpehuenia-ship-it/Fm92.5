@@ -1,0 +1,6 @@
+{
+  "name": "ETHER FM",
+  "description": "Aplicación futurista de transmisión de radio synthwave en vivo y panel de administración de estudio con diseño glassmorphism.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
