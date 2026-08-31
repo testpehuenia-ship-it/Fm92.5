@@ -10,7 +10,8 @@ import {
   BarChart2, 
   Bell, 
   User,
-  RadioTower
+  RadioTower,
+  LogOut
 } from 'lucide-react';
 
 interface NavigationProps {
@@ -122,10 +123,23 @@ export const Navigation: React.FC<NavigationProps> = ({
           </div>
         </div>
 
-        {/* Bottom Station Tag */}
-        <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between px-2 text-[12px] text-[#849396]">
-          <span>ETHER FM v2.4</span>
-          <span className="text-[#0066ff] font-semibold">EN LÍNEA</span>
+        {/* Bottom Station Tag and Logout */}
+        <div className="mt-auto pt-4 border-t border-white/5 flex flex-col gap-3 px-2">
+          <button
+            onClick={() => {
+              localStorage.removeItem('etherfm_admin');
+              window.location.reload();
+            }}
+            className="flex items-center gap-2 text-[13px] text-[#ff24e4] hover:text-[#fface8] transition-colors px-2 py-1.5 rounded-md hover:bg-white/5 w-full text-left"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Cerrar Sesión</span>
+          </button>
+          
+          <div className="flex items-center justify-between text-[12px] text-[#849396] px-2">
+            <span>ETHER FM v2.4</span>
+            <span className="text-[#0066ff] font-semibold">EN LÍNEA</span>
+          </div>
         </div>
       </aside>
 
