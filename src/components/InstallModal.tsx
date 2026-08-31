@@ -8,27 +8,54 @@ import {
   Loader2,
   Sparkles
 } from 'lucide-react';
+import { StationConfig } from '../types';
 
 interface InstallModalProps {
   isOpen: boolean;
   onClose: () => void;
   onInstalledComplete: () => void;
+  station: StationConfig;
 }
 
 export const InstallModal: React.FC<InstallModalProps> = ({
   isOpen,
   onClose,
   onInstalledComplete,
+  station,
 }) => {
   const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+  React.useEffect(() => {
+    const handler = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
 
   if (!isOpen) return null;
 
-  const handleNextFromStep1 = () => {
+  const handleNextFromStep1 = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        console.log('User accepted the install prompt');
+      }
+      setDeferredPrompt(null);
+    }
     setStep(2);
   };
 
-  const handleNextFromStep2 = () => {
+  const handleNextFromStep2 = async () => {
+    if ('Notification' in window) {
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        console.log('Notification permission granted.');
+      }
+    }
     setStep(3);
     setTimeout(() => {
       onInstalledComplete();
@@ -59,9 +86,13 @@ export const InstallModal: React.FC<InstallModalProps> = ({
       <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-md">
         {/* Brand Header */}
         <div className="flex flex-col items-center mb-6">
-          <Radio className="w-12 h-12 text-[#0066ff] drop-shadow-[0_0_10px_rgba(0,229,255,0.6)] mb-2 animate-pulse" />
-          <h1 className="text-[34px] font-black tracking-wider text-[#0066ff] drop-shadow-[0_0_15px_rgba(0,229,255,0.7)] font-mono">
-            ETHER FM
+          {station.logoUrl ? (
+            <img src={station.logoUrl} alt="Logo" className="w-16 h-16 rounded-full object-cover mb-2 shadow-[0_0_15px_rgba(0,102,255,0.6)] animate-pulse" />
+          ) : (
+            <Radio className="w-12 h-12 text-[#0066ff] drop-shadow-[0_0_10px_rgba(0,102,255,0.6)] mb-2 animate-pulse" />
+          )}
+          <h1 className="text-[34px] font-black tracking-wider text-[#0066ff] drop-shadow-[0_0_15px_rgba(0,102,255,0.7)] font-mono uppercase text-center leading-none">
+            {station.radioName}
           </h1>
         </div>
 

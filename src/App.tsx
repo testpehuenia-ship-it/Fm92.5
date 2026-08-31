@@ -28,19 +28,28 @@ export default function App() {
     return localStorage.getItem('etherfm_admin') === 'true';
   });
   const [showLogin, setShowLogin] = useState(() => {
-    return window.location.hash === '#admin' && localStorage.getItem('etherfm_admin') !== 'true';
+    const wantsAdmin = window.location.hash === '#admin' || window.location.pathname === '/admin' || window.location.pathname === '/admin/';
+    return wantsAdmin && localStorage.getItem('etherfm_admin') !== 'true';
   });
 
   useEffect(() => {
-    const handleHashChange = () => {
-      if (window.location.hash === '#admin' && !isAdmin) {
+    const handleNavigation = () => {
+      const wantsAdmin = window.location.hash === '#admin' || window.location.pathname === '/admin' || window.location.pathname === '/admin/';
+      if (wantsAdmin && !isAdmin) {
         setShowLogin(true);
       } else {
         setShowLogin(false);
       }
+      if (wantsAdmin && isAdmin) {
+        setActiveTab('admin');
+      }
     };
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    window.addEventListener('hashchange', handleNavigation);
+    window.addEventListener('popstate', handleNavigation);
+    return () => {
+      window.removeEventListener('hashchange', handleNavigation);
+      window.removeEventListener('popstate', handleNavigation);
+    };
   }, [isAdmin]);
 
   const handleLogin = (password: string) => {
@@ -49,7 +58,11 @@ export default function App() {
       setShowLogin(false);
       localStorage.setItem('etherfm_admin', 'true');
       setActiveTab('admin');
-      window.location.hash = ''; 
+      if (window.location.pathname.includes('/admin')) {
+        window.history.replaceState(null, '', '/');
+      } else {
+        window.location.hash = ''; 
+      }
       return true;
     }
     return false;
@@ -86,6 +99,46 @@ export default function App() {
   const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
   const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);
   const [generalToast, setGeneralToast] = useState<string | null>(null);
+
+  // Install Modal Auto-show
+  useEffect(() => {
+    const hasSeenPrompt = localStorage.getItem('etherfm_install_prompted');
+    // Only show on root path (not admin) and if not already installed/prompted
+    if (!hasSeenPrompt && !showLogin && !isAdmin) {
+      // Delay it slightly for a better UX
+      const timer = setTimeout(() => {
+        setIsInstallModalOpen(true);
+        localStorage.setItem('etherfm_install_prompted', 'true');
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [showLogin, isAdmin]);
+
+  // BroadcastChannel for cross-tab Notifications
+  useEffect(() => {
+    const channel = new BroadcastChannel('etherfm_alerts');
+    channel.onmessage = (event) => {
+      const alert: BroadcastAlert = event.data;
+      
+      // Add to recent alerts
+      setRecentAlerts((prev) => [alert, ...prev]);
+      setActiveToastAlert(alert);
+      audioEngine.playStaticBurst();
+
+      // Trigger System Notification
+      if (Notification.permission === 'granted') {
+        new Notification(alert.title, {
+          body: alert.message,
+          icon: '/logo.png', // Will fallback nicely
+        });
+      }
+
+      setTimeout(() => {
+        setActiveToastAlert((curr) => (curr?.id === alert.id ? null : curr));
+      }, 6000);
+    };
+    return () => channel.close();
+  }, []);
 
   const currentTrack = INITIAL_TRACKS[currentTrackIndex] || INITIAL_TRACKS[0];
 
@@ -152,6 +205,19 @@ export default function App() {
     setRecentAlerts((prev) => [newAlert, ...prev]);
     setActiveToastAlert(newAlert);
     audioEngine.playStaticBurst();
+    
+    // Broadcast to other tabs (listeners)
+    const channel = new BroadcastChannel('etherfm_alerts');
+    channel.postMessage(newAlert);
+    channel.close();
+
+    // Trigger local system notification if permissions granted
+    if (Notification.permission === 'granted') {
+      new Notification(newAlert.title, {
+        body: newAlert.message,
+        icon: station.logoUrl || '/logo.png',
+      });
+    }
 
     // Auto dismiss toast after 6 seconds
     setTimeout(() => {

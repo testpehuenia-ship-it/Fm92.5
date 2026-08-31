@@ -1,0 +1,22 @@
+{
+  "name": "Fm Golfo Azul",
+  "short_name": "Golfo Azul",
+  "description": "Radio Sintética y Estudio de Transmisión en Vivo",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0A0A0F",
+  "theme_color": "#0A0A0F",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
