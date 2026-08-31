@@ -100,18 +100,7 @@ export const Navigation: React.FC<NavigationProps> = ({
             <span>Panel de Administración</span>
           </button>
 
-          <button
-            id="nav-btn-apps"
-            onClick={() => setActiveTab('apps')}
-            className={`flex items-center gap-3.5 px-4 py-3 rounded-lg font-medium text-[14px] transition-all duration-200 text-left ${
-              activeTab === 'apps'
-                ? 'bg-[#0066ff]/15 text-[#0066ff] border-l-2 border-[#0066ff]'
-                : 'text-[#bac9cc] hover:bg-white/5 hover:text-[#0066ff]'
-            }`}
-          >
-            <Download className="w-5 h-5" />
-            <span>Instalar App</span>
-          </button>
+
         </div>
 
         {/* Secondary Nav / System Status */}
@@ -187,18 +176,7 @@ export const Navigation: React.FC<NavigationProps> = ({
           <span className="text-[11px] font-semibold">Admin</span>
         </button>
 
-        <button
-          id="mobile-tab-apps"
-          onClick={() => setActiveTab('apps')}
-          className={`flex flex-col items-center justify-center gap-1 flex-1 py-1 transition-all ${
-            activeTab === 'apps'
-              ? 'text-[#0066ff] drop-shadow-[0_0_8px_#0066ff] -translate-y-1'
-              : 'text-[#849396] hover:text-[#fface8]'
-          }`}
-        >
-          <Download className="w-5 h-5" />
-          <span className="text-[11px] font-semibold">Apps</span>
-        </button>
+
       </nav>
     </>
   );

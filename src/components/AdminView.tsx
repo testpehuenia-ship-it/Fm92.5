@@ -13,9 +13,12 @@ import {
   Flame, 
   CheckCircle2, 
   Sparkles,
-  RefreshCw
+  RefreshCw,
+  X,
+  Bookmark,
+  Upload
 } from 'lucide-react';
-import { StationConfig, BroadcastAlert } from '../types';
+import { StationConfig, BroadcastAlert, PushTemplate } from '../types';
 
 interface AdminViewProps {
   station: StationConfig;
@@ -43,6 +46,74 @@ export const AdminView: React.FC<AdminViewProps> = ({
   const [alertTitle, setAlertTitle] = useState('En Vivo Ahora: Sesión Especial');
   const [alertBody, setAlertBody] = useState('Sintoniza una hora exclusiva de dark synthwave...');
   const [transmittedSuccess, setTransmittedSuccess] = useState(false);
+
+  const [templates, setTemplates] = useState<PushTemplate[]>(() => {
+    const saved = localStorage.getItem('etherfm_alert_templates');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const result = event.target?.result as string;
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const MAX_SIZE = 512;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height && width > MAX_SIZE) {
+          height *= MAX_SIZE / width;
+          width = MAX_SIZE;
+        } else if (height > MAX_SIZE) {
+          width *= MAX_SIZE / height;
+          height = MAX_SIZE;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        const compressedBase64 = canvas.toDataURL('image/webp', 0.8);
+        setLogoUrl(compressedBase64);
+      };
+      img.src = result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSaveTemplate = () => {
+    if (!alertTitle.trim() || !alertBody.trim()) return;
+    if (templates.length >= 6) {
+      alert("Límite de plantillas alcanzado (máx 6). Elimina alguna para agregar más.");
+      return;
+    }
+    const newTemplate: PushTemplate = {
+      id: `tpl-${Date.now()}`,
+      title: alertTitle,
+      message: alertBody
+    };
+    const newTemplates = [...templates, newTemplate];
+    setTemplates(newTemplates);
+    localStorage.setItem('etherfm_alert_templates', JSON.stringify(newTemplates));
+  };
+
+  const handleLoadTemplate = (t: PushTemplate) => {
+    setAlertTitle(t.title);
+    setAlertBody(t.message);
+  };
+
+  const handleDeleteTemplate = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newTemplates = templates.filter(t => t.id !== id);
+    setTemplates(newTemplates);
+    localStorage.setItem('etherfm_alert_templates', JSON.stringify(newTemplates));
+  };
 
   const handleSaveConfig = (e: React.FormEvent) => {
     e.preventDefault();
@@ -224,21 +295,35 @@ export const AdminView: React.FC<AdminViewProps> = ({
                 </div>
               </div>
 
-              {/* Logo URL */}
+              {/* Logo Upload */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-[14px] font-medium text-[#bac9cc]" htmlFor="logoUrl">
-                  URL del Logo de la Emisora
+                <label className="text-[14px] font-medium text-[#bac9cc]">
+                  Logo de la Emisora (Recomendado 512x512 px)
                 </label>
-                <div className="flex items-center bg-[#0e0e13]/70 border border-[#3b494c] rounded-lg p-1.5">
-                  <span className="px-2 text-[#849396]">🖼️</span>
-                  <input
-                    id="logoUrl"
-                    type="url"
-                    value={logoUrl}
-                    onChange={(e) => setLogoUrl(e.target.value)}
-                    className="w-full bg-transparent border-0 text-[#e4e1e9] text-[13px] font-mono focus:ring-0 outline-none"
-                    placeholder="https://ejemplo.com/logo.png"
-                  />
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full overflow-hidden border border-[#0066ff]/40 bg-[#0066ff]/10 flex-shrink-0 flex items-center justify-center">
+                    {logoUrl ? (
+                      <img src={logoUrl} alt="Logo Preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <Radio className="w-6 h-6 text-[#0066ff]" />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <label 
+                      htmlFor="logo-upload"
+                      className="flex items-center justify-center gap-2 w-full bg-[#0e0e13]/70 border border-[#3b494c] rounded-lg p-2.5 text-[#849396] hover:text-[#e4e1e9] hover:border-[#0066ff] transition-all cursor-pointer font-medium text-[13px]"
+                    >
+                      <Upload className="w-4 h-4" />
+                      Subir Imagen
+                    </label>
+                    <input
+                      id="logo-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoUpload}
+                      className="hidden"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -301,9 +386,40 @@ export const AdminView: React.FC<AdminViewProps> = ({
               <h2 className="text-[22px] font-bold text-[#e4e1e9]">Alerta de Transmisión</h2>
             </div>
             
-            <p className="text-[14px] text-[#bac9cc]">
-              Envía una notificación push a todos los oyentes activos de la app móvil.
-            </p>
+            <div className="flex justify-between items-start gap-4">
+              <p className="text-[14px] text-[#bac9cc]">
+                Envía una notificación push a todos los oyentes activos de la app móvil.
+              </p>
+              <button
+                type="button"
+                onClick={handleSaveTemplate}
+                className="shrink-0 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#0066ff] bg-[#0066ff]/15 px-3 py-1.5 rounded-lg hover:bg-[#0066ff] hover:text-[#00363d] transition-colors border border-[#0066ff]"
+              >
+                <Bookmark className="w-3.5 h-3.5" />
+                Guardar Plantilla
+              </button>
+            </div>
+
+            {/* Templates List */}
+            {templates.length > 0 && (
+              <div className="flex flex-wrap gap-2 pt-2">
+                {templates.map(t => (
+                  <div 
+                    key={t.id}
+                    onClick={() => handleLoadTemplate(t)}
+                    className="flex items-center gap-1 bg-[#1b1b20] border border-white/10 rounded-full pl-3 pr-1 py-1 text-[12px] text-[#bac9cc] cursor-pointer hover:border-[#fface8] hover:text-[#fface8] transition-colors group"
+                  >
+                    <span className="truncate max-w-[120px] font-medium">{t.title}</span>
+                    <button 
+                      onClick={(e) => handleDeleteTemplate(t.id, e)}
+                      className="p-1 text-[#849396] hover:text-[#ff24e4] rounded-full hover:bg-white/10"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
 
             <form id="form-broadcast-alert" onSubmit={handleTransmit} className="space-y-4 pt-1">
               <div className="flex flex-col gap-1">

@@ -47,4 +47,10 @@ export interface EqualizerBand {
   value: number; // -12 to +12 dB
 }
 
-export type ActiveTab = 'radio' | 'messages' | 'admin' | 'apps';
+export interface PushTemplate {
+  id: string;
+  title: string;
+  message: string;
+}
+
+export type ActiveTab = 'radio' | 'messages' | 'admin';
