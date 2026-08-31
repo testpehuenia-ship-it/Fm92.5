@@ -102,17 +102,17 @@ export default function App() {
 
   // Install Modal Auto-show
   useEffect(() => {
-    const hasSeenPrompt = localStorage.getItem('etherfm_install_prompted');
-    // Only show on root path (not admin) and if not already installed/prompted
-    if (!hasSeenPrompt && !showLogin && !isAdmin) {
+    const hasSeenPrompt = sessionStorage.getItem('etherfm_install_prompted');
+    // Only show on root path (not login screen) and if not already prompted in this session
+    if (!hasSeenPrompt && !showLogin) {
       // Delay it slightly for a better UX
       const timer = setTimeout(() => {
         setIsInstallModalOpen(true);
-        localStorage.setItem('etherfm_install_prompted', 'true');
+        sessionStorage.setItem('etherfm_install_prompted', 'true');
       }, 2000);
       return () => clearTimeout(timer);
     }
-  }, [showLogin, isAdmin]);
+  }, [showLogin]);
 
   // BroadcastChannel for cross-tab Notifications
   useEffect(() => {
