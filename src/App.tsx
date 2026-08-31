@@ -360,6 +360,7 @@ export default function App() {
         isOpen={isInstallModalOpen}
         onClose={() => setIsInstallModalOpen(false)}
         onInstalledComplete={() => showToast('¡ETHER FM agregada con éxito a la pantalla de inicio!')}
+        station={station}
       />
 
       <WhatsAppModal
