@@ -9,6 +9,8 @@ export interface StationConfig {
   uptime: string;
   listeners: number;
   logoUrl?: string;
+  whatsappNumber?: string;
+  useInternalChat?: boolean;
 }
 
 export interface Track {
@@ -39,6 +41,7 @@ export interface ChatMessage {
   timestamp: string;
   isHost?: boolean;
   likes: number;
+  status?: 'unread' | 'read' | 'completed';
 }
 
 export interface EqualizerBand {

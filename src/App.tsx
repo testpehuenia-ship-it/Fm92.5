@@ -14,10 +14,13 @@ import { AdminView } from './components/AdminView';
 import { MessagesView } from './components/MessagesView';
 import { InstallModal } from './components/InstallModal';
 import { WhatsAppModal } from './components/WhatsAppModal';
+import { ChatModal } from './components/ChatModal';
 import { AlertToast } from './components/AlertToast';
 import { LoginView } from './components/LoginView';
 import { audioEngine } from './audio/audioEngine';
 import { Sparkles, Check, Radio } from 'lucide-react';
+import { collection, addDoc, onSnapshot, query, orderBy, limit, serverTimestamp } from 'firebase/firestore';
+import { db } from './lib/firebase';
 
 export default function App() {
   // Navigation
@@ -73,7 +76,7 @@ export default function App() {
     const saved = localStorage.getItem('etherfm_station');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        return { ...INITIAL_STATION, ...JSON.parse(saved) };
       } catch (e) {}
     }
     return INITIAL_STATION;
@@ -98,6 +101,7 @@ export default function App() {
   // Modals & Banners
   const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
   const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);
+  const [isChatModalOpen, setIsChatModalOpen] = useState(false);
   const [generalToast, setGeneralToast] = useState<string | null>(null);
 
   // Install Modal Auto-show
@@ -131,30 +135,49 @@ export default function App() {
     return () => window.removeEventListener('appinstalled', handleAppInstalled);
   }, [showLogin]);
 
-  // BroadcastChannel for cross-tab Notifications
+  // Firebase Firestore Listener for Push Alerts
   useEffect(() => {
-    const channel = new BroadcastChannel('etherfm_alerts');
-    channel.onmessage = (event) => {
-      const alert: BroadcastAlert = event.data;
-      
-      // Add to recent alerts
-      setRecentAlerts((prev) => [alert, ...prev]);
-      setActiveToastAlert(alert);
-      audioEngine.playStaticBurst();
-
-      // Trigger System Notification
-      if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification(alert.title, {
-          body: alert.message,
-          icon: '/logo.png', // Will fallback nicely
-        });
+    const q = query(collection(db, 'alerts'), orderBy('createdAt', 'desc'), limit(1));
+    let initialLoad = true;
+    
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      if (initialLoad) {
+        initialLoad = false;
+        return;
       }
+      
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === 'added') {
+          const data = change.doc.data();
+          const newAlert: BroadcastAlert = {
+            id: change.doc.id,
+            title: data.title,
+            message: data.message,
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            active: true
+          };
+          
+          setRecentAlerts((prev) => [newAlert, ...prev]);
+          setActiveToastAlert(newAlert);
+          audioEngine.playStaticBurst();
+          
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification(newAlert.title, {
+              body: newAlert.message,
+              icon: '/logo.png',
+            });
+          }
 
-      setTimeout(() => {
-        setActiveToastAlert((curr) => (curr?.id === alert.id ? null : curr));
-      }, 6000);
-    };
-    return () => channel.close();
+          setTimeout(() => {
+            setActiveToastAlert((curr) => (curr?.id === newAlert.id ? null : curr));
+          }, 6000);
+        }
+      });
+    }, (error) => {
+      console.warn("Firestore Listener Error. Base de datos tal vez no activada aún:", error);
+    });
+    
+    return () => unsubscribe();
   }, []);
 
   const currentTrack = INITIAL_TRACKS[currentTrackIndex] || INITIAL_TRACKS[0];
@@ -210,49 +233,81 @@ export default function App() {
   };
 
   // Transmit Broadcast Alert from Admin Panel
-  const handleTransmitAlert = (title: string, message: string) => {
-    const newAlert: BroadcastAlert = {
-      id: `alert-${Date.now()}`,
-      title,
-      message,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      active: true
-    };
-
-    setRecentAlerts((prev) => [newAlert, ...prev]);
-    setActiveToastAlert(newAlert);
-    audioEngine.playStaticBurst();
-    
-    // Broadcast to other tabs (listeners)
-    const channel = new BroadcastChannel('etherfm_alerts');
-    channel.postMessage(newAlert);
-    channel.close();
-
-    // Trigger local system notification if permissions granted
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification(newAlert.title, {
-        body: newAlert.message,
-        icon: station.logoUrl || '/logo.png',
+  const handleTransmitAlert = async (title: string, message: string) => {
+    try {
+      await addDoc(collection(db, 'alerts'), {
+        title,
+        message,
+        createdAt: serverTimestamp()
       });
+      showToast('¡Alerta enviada a la red (Firebase)!');
+    } catch (e) {
+      console.error(e);
+      showToast('Error al enviar. Verifica que creaste la base de datos Firestore en modo prueba.');
     }
-
-    // Auto dismiss toast after 6 seconds
-    setTimeout(() => {
-      setActiveToastAlert((curr) => (curr?.id === newAlert.id ? null : curr));
-    }, 6000);
   };
 
+  // Listen to Firestore for Messages
+  useEffect(() => {
+    if (!station.useInternalChat) return;
+    
+    const q = query(collection(db, 'messages'), orderBy('createdAt', 'desc'), limit(50));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const msgs: ChatMessage[] = [];
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        msgs.push({
+          id: doc.id,
+          author: data.author,
+          text: data.text,
+          timestamp: data.timestamp || '',
+          likes: data.likes || 0,
+          isHost: data.isHost || false,
+          status: data.status || 'unread'
+        });
+      });
+      setMessages(msgs.reverse());
+    }, (error) => {
+      console.warn("Firestore Messages Listener Error:", error);
+    });
+    return () => unsubscribe();
+  }, [station.useInternalChat]);
+
   // Send Chat Message
-  const handleSendMessage = (text: string, author: string) => {
-    const newMsg: ChatMessage = {
-      id: `msg-${Date.now()}`,
-      author,
-      text,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      likes: 0
-    };
-    setMessages((prev) => [...prev, newMsg]);
-    showToast('¡Mensaje enviado al chat del estudio!');
+  const handleSendMessage = async (text: string, author: string, isHost = false) => {
+    try {
+      await addDoc(collection(db, 'messages'), {
+        author,
+        text,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        likes: 0,
+        isHost,
+        status: 'unread',
+        createdAt: serverTimestamp()
+      });
+      showToast('¡Mensaje enviado exitosamente!');
+    } catch(e) {
+      console.error(e);
+      showToast('Error al enviar. Verifica tu conexión.');
+    }
+  };
+
+  const handleUpdateMessageStatus = async (id: string, status: 'unread' | 'read' | 'completed') => {
+    try {
+      const { doc, updateDoc } = await import('firebase/firestore');
+      await updateDoc(doc(db, 'messages', id), { status });
+    } catch (e) {
+      console.error(e);
+      showToast('Error al actualizar mensaje.');
+    }
+  };
+
+  const handleOpenChatAction = () => {
+    if (station.whatsappNumber) {
+      setIsWhatsAppModalOpen(true);
+    } else if (station.useInternalChat) {
+      setIsChatModalOpen(true);
+    }
   };
 
   // Share station
@@ -344,7 +399,7 @@ export default function App() {
                   onTogglePlay={handleTogglePlay}
                   onPrevTrack={handlePrevTrack}
                   onNextTrack={handleNextTrack}
-                  onOpenWhatsApp={() => setIsWhatsAppModalOpen(true)}
+                  onOpenWhatsApp={handleOpenChatAction}
                   onOpenInstallModal={() => setIsInstallModalOpen(true)}
                   onShare={handleShare}
                 />
@@ -364,7 +419,8 @@ export default function App() {
                   station={station}
                   messages={messages}
                   onSendMessage={handleSendMessage}
-                  onOpenWhatsApp={() => setIsWhatsAppModalOpen(true)}
+                  onUpdateMessageStatus={handleUpdateMessageStatus}
+                  onOpenWhatsApp={station.whatsappNumber ? () => setIsWhatsAppModalOpen(true) : undefined}
                 />
               )}
             </>
@@ -376,9 +432,13 @@ export default function App() {
       <InstallModal
         isOpen={isInstallModalOpen}
         onClose={() => setIsInstallModalOpen(false)}
-        onInstalledComplete={() => {
+        onInstalledComplete={async () => {
           localStorage.setItem('etherfm_app_installed', 'true');
           showToast(`¡${station.radioName} agregada con éxito a la pantalla de inicio!`);
+          try {
+            const { doc, setDoc, increment } = await import('firebase/firestore');
+            await setDoc(doc(db, 'stats', 'downloads'), { count: increment(1) }, { merge: true });
+          } catch(e) { console.error(e); }
         }}
         station={station}
       />
@@ -389,9 +449,15 @@ export default function App() {
         station={station}
         currentTrack={currentTrack}
         onMessageSent={(msg) => {
-          handleSendMessage(msg, 'Tú (vía WhatsApp)');
-          showToast('¡Mensaje enviado a la cabina del estudio vía WhatsApp!');
+          handleSendMessage(msg, 'Tú (vía WhatsApp)', false);
         }}
+      />
+
+      <ChatModal
+        isOpen={isChatModalOpen}
+        onClose={() => setIsChatModalOpen(false)}
+        onSendMessage={(text, author) => handleSendMessage(text, author, false)}
+        station={station}
       />
 
       {/* Live Broadcast Alert Notification Toast */}

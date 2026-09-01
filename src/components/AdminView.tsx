@@ -15,8 +15,8 @@ import {
   Sparkles,
   RefreshCw,
   X,
-  Bookmark,
-  Upload
+  Upload,
+  Download
 } from 'lucide-react';
 import { StationConfig, BroadcastAlert, PushTemplate } from '../types';
 
@@ -39,6 +39,8 @@ export const AdminView: React.FC<AdminViewProps> = ({
   const [streamUrl, setStreamUrl] = useState(station.streamUrl);
   const [logoUrl, setLogoUrl] = useState(station.logoUrl || '');
   const [bitrate, setBitrate] = useState(station.bitrate.toString());
+  const [whatsappNumber, setWhatsappNumber] = useState(station.whatsappNumber || '');
+  const [useInternalChat, setUseInternalChat] = useState(station.useInternalChat ?? true);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [copiedUrl, setCopiedUrl] = useState(false);
 
@@ -51,6 +53,26 @@ export const AdminView: React.FC<AdminViewProps> = ({
     const saved = localStorage.getItem('etherfm_alert_templates');
     return saved ? JSON.parse(saved) : [];
   });
+
+  const [appDownloads, setAppDownloads] = useState(0);
+
+  React.useEffect(() => {
+    const fetchDownloads = async () => {
+      try {
+        const { doc, onSnapshot } = await import('firebase/firestore');
+        const { db } = await import('../lib/firebase');
+        const unsub = onSnapshot(doc(db, 'stats', 'downloads'), (snap) => {
+          if (snap.exists()) {
+            setAppDownloads(snap.data().count || 0);
+          }
+        });
+        return unsub;
+      } catch (e) {}
+    };
+    let unsub: any;
+    fetchDownloads().then(fn => { unsub = fn });
+    return () => { if (unsub) unsub(); }
+  }, []);
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -126,6 +148,8 @@ export const AdminView: React.FC<AdminViewProps> = ({
       streamUrl,
       bitrate: numBitrate,
       logoUrl,
+      whatsappNumber,
+      useInternalChat,
     });
 
     setSavedSuccess(true);
@@ -167,8 +191,8 @@ export const AdminView: React.FC<AdminViewProps> = ({
 
       {/* Bento Grid Layout */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 relative z-10">
-        {/* Top 3 Stat Cards */}
-        <div className="md:col-span-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Top 4 Stat Cards */}
+        <div className="md:col-span-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
           {/* Current Listeners */}
           <div 
             id="stat-listeners"
@@ -219,6 +243,24 @@ export const AdminView: React.FC<AdminViewProps> = ({
               </p>
               <p className="text-[30px] font-bold text-[#e4e1e9] leading-tight font-mono">
                 {station.uptime}
+              </p>
+            </div>
+          </div>
+
+          {/* Downloads */}
+          <div 
+            id="stat-downloads"
+            className="glass-panel rounded-xl p-6 flex items-center gap-4 transition-all duration-300 hover:border-[#25D366]/40 hover:shadow-[0_0_20px_rgba(37,211,102,0.15)]"
+          >
+            <div className="w-12 h-12 rounded-full bg-[#25D366]/20 flex items-center justify-center border border-[#25D366]/40 shrink-0">
+              <Download className="w-6 h-6 text-[#25D366]" />
+            </div>
+            <div>
+              <p className="text-[12px] font-semibold text-[#849396] uppercase tracking-wider">
+                Descargas App
+              </p>
+              <p className="text-[30px] font-bold text-[#e4e1e9] leading-tight font-mono">
+                {appDownloads.toLocaleString()}
               </p>
             </div>
           </div>
@@ -320,6 +362,48 @@ export const AdminView: React.FC<AdminViewProps> = ({
                       className="hidden"
                     />
                   </div>
+                </div>
+              </div>
+
+              {/* Chat Configuration */}
+              <div className="flex flex-col gap-3 pt-2 pb-1 border-t border-[#3b494c]/50">
+                <label className="text-[14px] font-medium text-[#bac9cc]">
+                  Configuración de Contacto y Mensajes
+                </label>
+                
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="checkbox" 
+                      id="useInternalChat" 
+                      checked={useInternalChat}
+                      onChange={(e) => setUseInternalChat(e.target.checked)}
+                      className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-[#0066ff] focus:ring-[#0066ff]"
+                    />
+                    <label htmlFor="useInternalChat" className="text-[13px] text-[#e4e1e9]">
+                      Habilitar Panel Interno de "Mensajes del Estudio"
+                    </label>
+                  </div>
+                  <p className="text-[11px] text-[#849396] pl-6">
+                    Si está activado, los oyentes podrán pedir canciones desde la app al panel de control.
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-1.5 mt-2">
+                  <label className="text-[13px] font-medium text-[#bac9cc]" htmlFor="whatsappNumber">
+                    Número de WhatsApp (Opcional)
+                  </label>
+                  <input
+                    id="whatsappNumber"
+                    type="text"
+                    value={whatsappNumber}
+                    onChange={(e) => setWhatsappNumber(e.target.value)}
+                    className="bg-transparent border-0 border-b border-[#3b494c] text-[#e4e1e9] py-2 px-1 text-[15px] focus:ring-0 focus:border-[#25D366] transition-colors outline-none"
+                    placeholder="ej. +5491112345678"
+                  />
+                  <p className="text-[11px] text-[#849396]">
+                    Si lo ingresas, aparecerá un botón directo a tu WhatsApp.
+                  </p>
                 </div>
               </div>
 

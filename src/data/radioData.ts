@@ -10,7 +10,9 @@ export const INITIAL_STATION: StationConfig = {
   currentShow: 'Transmisión en Vivo',
   host: 'Locutor',
   uptime: '99.9%',
-  listeners: 12458
+  listeners: 12458,
+  useInternalChat: true,
+  whatsappNumber: ''
 };
 
 export const STATIONS_PRESETS = [
