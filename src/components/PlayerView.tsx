@@ -122,7 +122,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
   };
 
   return (
-    <div className="relative h-[calc(100dvh-64px)] md:min-h-screen flex flex-col items-center justify-center p-2 sm:p-6 overflow-hidden">
+    <div className="relative h-[calc(100dvh-64px)] md:min-h-screen flex flex-col items-center justify-center p-2 sm:p-6 overflow-hidden touch-none overscroll-none">
       {/* 100% Sharp, Crisp Background Image - No Darkening Overlays */}
       <div 
         id="crisp-background-image"
@@ -137,7 +137,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
       {/* Main Glassmorphism Device Container */}
       <div 
         id="player-card"
-        className="relative z-10 w-full max-w-[420px] h-full max-h-[700px] md:h-auto rounded-[32px] overflow-hidden bg-black/25 border-2 border-[#0066ff] animate-neon-breathe flex flex-col transition-all duration-300"
+        className="relative z-10 w-full max-w-[420px] h-full md:h-auto rounded-[32px] overflow-hidden bg-black/25 border-2 border-[#0066ff] animate-neon-breathe flex flex-col transition-all duration-300"
       >
         {/* Content Area */}
         <div className="flex flex-col items-center justify-between h-full p-3 sm:p-6 pt-4 pb-4">
@@ -179,7 +179,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
           </div>
 
           {/* Track Info & Live Status */}
-          <div className="w-full flex flex-col items-center gap-1.5 sm:gap-3 shrink-0">
+          <div className="w-full flex flex-col items-center gap-2 sm:gap-4 shrink-0">
             <div className="text-center">
               <h2 className="text-[20px] sm:text-[22px] font-bold text-white mb-0.5 tracking-tight">
                 {station.radioName}
