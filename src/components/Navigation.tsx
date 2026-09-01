@@ -137,7 +137,7 @@ export const Navigation: React.FC<NavigationProps> = ({
           </button>
           
           <div className="flex items-center justify-between text-[12px] text-[#849396] px-2">
-            <span>ETHER FM v2.4</span>
+            <span>{station.radioName} v2.4</span>
             <span className="text-[#0066ff] font-semibold">EN LÍNEA</span>
           </div>
         </div>

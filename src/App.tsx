@@ -260,8 +260,8 @@ export default function App() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Escuchando ${station.radioName} en ETHER FM`,
-          text: `¡Sintoniza ${station.currentShow} en ${station.frequency.toFixed(1)} MHz en vivo por ETHER FM!`,
+          title: `Escuchando ${station.radioName} en vivo`,
+          text: `¡Sintoniza ${station.currentShow} en ${station.frequency.toFixed(1)} MHz en vivo!`,
           url: window.location.href,
         });
       } catch {
@@ -378,7 +378,7 @@ export default function App() {
         onClose={() => setIsInstallModalOpen(false)}
         onInstalledComplete={() => {
           localStorage.setItem('etherfm_app_installed', 'true');
-          showToast('¡ETHER FM agregada con éxito a la pantalla de inicio!');
+          showToast(`¡${station.radioName} agregada con éxito a la pantalla de inicio!`);
         }}
         station={station}
       />

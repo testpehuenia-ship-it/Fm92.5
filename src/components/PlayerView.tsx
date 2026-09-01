@@ -283,6 +283,16 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
 
 
       </div>
+
+      {/* Footer / Credits */}
+      <div className="relative z-10 mt-6 text-center">
+        <p className="text-[11px] font-medium tracking-wide">
+          <span className="text-[#849396]">Diseño </span>
+          <span className="text-[#0066ff] drop-shadow-[0_0_8px_#0066ff]">ADNQN</span>
+          <span className="text-[#ffd700]">.ar</span>
+          <span className="text-[#849396]"> 2026</span>
+        </p>
+      </div>
     </div>
   );
 };

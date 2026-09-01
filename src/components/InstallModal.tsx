@@ -118,7 +118,7 @@ export const InstallModal: React.FC<InstallModalProps> = ({
               </h2>
               
               <p className="text-[15px] leading-relaxed text-[#bac9cc] mb-8">
-                Agrega ETHER FM a tu pantalla de inicio para acceder rápidamente a transmisiones sintéticas y una experiencia de estudio inmersiva a pantalla completa.
+                Agrega {station.radioName} a tu pantalla de inicio para acceder rápidamente a transmisiones en vivo y una experiencia inmersiva a pantalla completa.
               </p>
 
               <div className="w-full space-y-3">
