@@ -13,8 +13,8 @@ import {
   Flame, 
   CheckCircle2, 
   Sparkles,
-  RefreshCw,
   X,
+  Bookmark,
   Upload,
   Download
 } from 'lucide-react';
