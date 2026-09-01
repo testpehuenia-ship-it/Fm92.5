@@ -122,7 +122,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
   };
 
   return (
-    <div className="relative h-[calc(100vh-64px)] md:min-h-screen flex flex-col items-center justify-center p-2 sm:p-6 overflow-hidden">
+    <div className="relative h-[calc(100dvh-64px)] md:min-h-screen flex flex-col items-center justify-center p-2 sm:p-6 overflow-hidden">
       {/* 100% Sharp, Crisp Background Image - No Darkening Overlays */}
       <div 
         id="crisp-background-image"
@@ -134,13 +134,13 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
         }}
       />
 
-      {/* Main Glassmorphism Device Container (matching original HTML spec) */}
+      {/* Main Glassmorphism Device Container */}
       <div 
         id="player-card"
-        className="relative z-10 w-full max-w-[420px] h-full md:h-auto rounded-[32px] overflow-hidden bg-black/25 border-2 border-[#0066ff] animate-neon-breathe flex flex-col transition-all duration-300"
+        className="relative z-10 w-full max-w-[420px] h-full max-h-[700px] md:h-auto rounded-[32px] overflow-hidden bg-black/25 border-2 border-[#0066ff] animate-neon-breathe flex flex-col transition-all duration-300"
       >
         {/* Content Area */}
-        <div className="flex flex-col items-center justify-between h-full p-4 sm:p-6 pt-5 pb-5 gap-3 sm:gap-4">
+        <div className="flex flex-col items-center justify-between h-full p-3 sm:p-6 pt-4 pb-4">
           {/* Frequency Dial Pill */}
           <div className="text-center w-full flex flex-col items-center">
             <div className="rounded-full px-5 py-1.5 border border-[#0066ff] bg-black/30 flex items-center gap-2.5 shadow-[0_0_12px_rgba(0,229,255,0.5)]">
@@ -152,7 +152,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
           </div>
 
           {/* Glowing Volume / Dial Ring */}
-          <div className="relative rounded-full border border-[#0066ff] shadow-[inset_0_0_18px_rgba(0,229,255,0.6)] flex items-center justify-center my-1 w-28 h-28 sm:w-32 sm:h-32 bg-black/30 group">
+          <div className="relative rounded-full border border-[#0066ff] shadow-[inset_0_0_18px_rgba(0,229,255,0.6)] flex items-center justify-center my-0.5 sm:my-1 w-24 h-24 sm:w-32 sm:h-32 bg-black/30 group shrink-0">
             {/* Outer Glow Ring */}
             <div 
               className="absolute inset-0 rounded-full border border-[#0066ff] shadow-[0_0_20px_rgba(0,229,255,0.8)] transition-all duration-300"
@@ -179,36 +179,36 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
           </div>
 
           {/* Track Info & Live Status */}
-          <div className="w-full flex flex-col items-center gap-4">
+          <div className="w-full flex flex-col items-center gap-1.5 sm:gap-3 shrink-0">
             <div className="text-center">
-              <h2 className="text-[22px] font-bold text-white mb-0.5 tracking-tight">
+              <h2 className="text-[20px] sm:text-[22px] font-bold text-white mb-0.5 tracking-tight">
                 {station.radioName}
               </h2>
-              <p className="text-[15px] font-medium text-[#0066ff]">
+              <p className="text-[14px] sm:text-[15px] font-medium text-[#0066ff]">
                 {station.currentShow}
               </p>
             </div>
 
             {/* Live Status Badge */}
             <div className="flex items-center justify-center gap-2">
-              <span className="text-[13px] font-bold tracking-wider text-[#0066ff] flex items-center gap-2 px-4 py-1.5 bg-black/40 rounded-full border border-[#0066ff]/30 shadow-[0_0_10px_rgba(0,229,255,0.2)]">
+              <span className="text-[12px] sm:text-[13px] font-bold tracking-wider text-[#0066ff] flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 bg-black/40 rounded-full border border-[#0066ff]/30 shadow-[0_0_10px_rgba(0,229,255,0.2)]">
                 <span className={`w-2 h-2 rounded-full ${isPlaying ? 'bg-[#ff24e4] shadow-[0_0_8px_#ff24e4] animate-pulse' : 'bg-white/40'}`}></span>
                 EN VIVO
               </span>
             </div>
 
             {/* Playback Controls */}
-            <div className="flex items-center justify-center w-full mt-1">
+            <div className="flex items-center justify-center w-full mt-0.5 sm:mt-1">
               <button 
                 id="btn-play-toggle"
                 onClick={onTogglePlay}
-                className="w-16 h-16 flex items-center justify-center rounded-full border-2 border-[#0066ff] text-[#0066ff] bg-black/40 shadow-[0_0_25px_rgba(0,229,255,0.8)] hover:shadow-[0_0_35px_rgba(0,229,255,1)] hover:bg-[#0066ff]/20 transition-all active:scale-95 group"
+                className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-full border-2 border-[#0066ff] text-[#0066ff] bg-black/40 shadow-[0_0_25px_rgba(0,229,255,0.8)] hover:shadow-[0_0_35px_rgba(0,229,255,1)] hover:bg-[#0066ff]/20 transition-all active:scale-95 group"
                 title={isPlaying ? 'Pausar Transmisión' : 'Iniciar Transmisión en Vivo'}
               >
                 {isPlaying ? (
-                  <Pause className="w-8 h-8 fill-[#0066ff]" />
+                  <Pause className="w-7 h-7 sm:w-8 sm:h-8 fill-[#0066ff]" />
                 ) : (
-                  <Play className="w-8 h-8 fill-[#0066ff] ml-1" />
+                  <Play className="w-7 h-7 sm:w-8 sm:h-8 fill-[#0066ff] ml-1" />
                 )}
               </button>
             </div>
@@ -217,7 +217,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
           {/* VU Meter Spectrum (13 reactive bars) */}
           <div 
             id="vu-spectrum"
-            className="h-12 w-full flex items-end justify-center gap-1.5 px-4"
+            className="h-10 sm:h-12 w-full flex items-end justify-center gap-1.5 px-4 shrink-0"
           >
             {spectrumHeights.map((height, idx) => {
               // Middle bars are magenta/pink matching the screenshot
@@ -237,7 +237,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
           </div>
 
           {/* Social & Contact Actions */}
-          <div className="w-full flex justify-between items-center px-2 pt-3 border-t border-[#0066ff]/30">
+          <div className="w-full flex justify-between items-center px-1 sm:px-2 pt-2 sm:pt-3 border-t border-[#0066ff]/30 shrink-0">
             <div className="flex items-center gap-3">
               <button 
                 id="btn-share"
