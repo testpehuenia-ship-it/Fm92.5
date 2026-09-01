@@ -135,16 +135,15 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
         }}
       />
 
-      {/* Floating Clock Widget */}
-      <div className="absolute top-4 left-4 z-20 scale-90 sm:scale-100 origin-top-left">
-        <WeatherWidget />
-      </div>
-
       {/* Main Glassmorphism Device Container */}
       <div 
         id="player-card"
         className="relative z-10 w-full max-w-[420px] h-full md:h-auto rounded-[32px] overflow-hidden bg-black/25 border-2 border-[#0066ff] animate-neon-breathe flex flex-col transition-all duration-300 mt-8 sm:mt-0"
       >
+        {/* Floating Clock Widget (Inside player card) */}
+        <div className="absolute top-4 left-4 z-20 scale-90 sm:scale-100 origin-top-left">
+          <WeatherWidget />
+        </div>
         {/* Content Area */}
         <div className="flex flex-col items-center justify-between h-full p-3 sm:p-6 pt-4 pb-4">
           {/* Frequency Dial Pill */}
