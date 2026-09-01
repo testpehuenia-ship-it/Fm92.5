@@ -7,7 +7,8 @@ import {
   MessageCircle, 
   Sparkles, 
   ShieldCheck,
-  Music2
+  Music2,
+  Check
 } from 'lucide-react';
 import { ChatMessage, StationConfig } from '../types';
 
