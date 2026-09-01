@@ -302,11 +302,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
                 </label>
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full overflow-hidden border border-[#0066ff]/40 bg-[#0066ff]/10 flex-shrink-0 flex items-center justify-center">
-                    {logoUrl ? (
-                      <img src={logoUrl} alt="Logo Preview" className="w-full h-full object-cover" />
-                    ) : (
-                      <Radio className="w-6 h-6 text-[#0066ff]" />
-                    )}
+                    <img src={logoUrl || '/logo.png'} alt="Logo Preview" className="w-full h-full object-cover bg-black/50" />
                   </div>
                   <div className="flex-1">
                     <label 

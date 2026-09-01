@@ -2,6 +2,7 @@ import { StationConfig, Track, ChatMessage, EqualizerBand } from '../types';
 
 export const INITIAL_STATION: StationConfig = {
   radioName: 'Fm Golfo Azul',
+  logoUrl: '/logo.png',
   frequency: 92.5,
   streamUrl: 'https://streaming01.shockmedia.com.ar/9180/stream',
   bitrate: 320,

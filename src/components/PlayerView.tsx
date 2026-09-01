@@ -168,21 +168,13 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
 
             {/* Central Animated Equalizer Waveform */}
             <div className="text-center flex flex-col items-center justify-center w-full h-full rounded-full overflow-hidden relative z-10">
-              {station.logoUrl ? (
-                <img 
-                  src={station.logoUrl} 
-                  alt={station.radioName} 
-                  className={`w-[85%] h-[85%] rounded-full object-cover transition-all duration-300 ${
-                    isPlaying ? 'scale-105 opacity-100 drop-shadow-[0_0_15px_rgba(0,102,255,0.8)]' : 'opacity-70 scale-95 grayscale-[20%]'
-                  }`} 
-                />
-              ) : (
-                <Activity 
-                  className={`w-10 h-10 text-[#0066ff] transition-all duration-300 ${
-                    isPlaying ? 'scale-110 drop-shadow-[0_0_10px_#0066ff]' : 'opacity-80'
-                  }`} 
-                />
-              )}
+              <img 
+                src={station.logoUrl || '/logo.png'} 
+                alt={station.radioName} 
+                className={`w-[85%] h-[85%] rounded-full object-cover transition-all duration-300 bg-black/50 ${
+                  isPlaying ? 'scale-105 opacity-100 drop-shadow-[0_0_15px_rgba(0,102,255,0.8)]' : 'opacity-70 scale-95 grayscale-[20%]'
+                }`} 
+              />
             </div>
           </div>
 
@@ -286,11 +278,13 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
 
       {/* Footer / Credits */}
       <div className="relative z-10 mt-6 text-center">
-        <p className="text-[11px] font-medium tracking-wide">
-          <span className="text-[#849396]">Diseño </span>
-          <span className="text-[#0066ff] drop-shadow-[0_0_8px_#0066ff]">ADNQN</span>
-          <span className="text-[#ffd700]">.ar</span>
-          <span className="text-[#849396]"> 2026</span>
+        <p className="text-[11px] font-medium tracking-wide flex items-center justify-center gap-1">
+          <span className="text-[#849396]">Diseño</span>
+          <a href="https://adnqn.ar/" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
+            <span className="text-[#0066ff] drop-shadow-[0_0_8px_#0066ff]">ADNQN</span>
+            <span className="text-[#ffd700]">.ar</span>
+          </a>
+          <span className="text-[#849396]">2026</span>
         </p>
       </div>
     </div>
