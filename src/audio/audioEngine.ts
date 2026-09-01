@@ -43,22 +43,23 @@ class AudioEngine {
     }
   }
 
-  public play(frequency = 104.5, streamUrl?: string) {
+  public async play(frequency = 104.5, streamUrl?: string): Promise<void> {
     this.frequency = frequency;
-    if (!this.init()) return;
-    if (this.isPlaying) return;
+    if (!this.init()) return Promise.reject('Init failed');
+    if (this.isPlaying) return Promise.resolve();
 
     this.isPlaying = true;
     
     if (streamUrl && streamUrl.trim() !== '') {
-      this.playStream(streamUrl);
+      return this.playStream(streamUrl);
     } else {
       this.currentStep = 0;
       this.startSequencer();
+      return Promise.resolve();
     }
   }
 
-  private playStream(url: string) {
+  private async playStream(url: string): Promise<void> {
     if (!this.audioElement) {
       this.audioElement = new Audio();
       this.audioElement.crossOrigin = 'anonymous'; // Re-added to prevent Web Audio API from muting the stream!
@@ -80,9 +81,13 @@ class AudioEngine {
     this.currentStreamUrl = url;
     this.audioElement.src = finalUrl;
     this.audioElement.volume = this.currentVolume;
-    this.audioElement.play().catch(e => {
-      console.error('Error playing stream:', e);
-    });
+    try {
+      await this.audioElement.play();
+    } catch (e) {
+      this.isPlaying = false;
+      console.error('Error playing stream (Autoplay blocked):', e);
+      throw e;
+    }
   }
 
   public updateStreamUrl(url: string) {

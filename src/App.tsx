@@ -135,6 +135,18 @@ export default function App() {
     return () => window.removeEventListener('appinstalled', handleAppInstalled);
   }, [showLogin]);
 
+  // Auto-play attempt on mount
+  useEffect(() => {
+    if (!showLogin) {
+      audioEngine.play(station.frequency, station.streamUrl)
+        .then(() => setIsPlaying(true))
+        .catch((e) => {
+          console.warn('Autoplay blocked by browser policy:', e);
+          setIsPlaying(false);
+        });
+    }
+  }, [showLogin, station.frequency, station.streamUrl]);
+
   // Firebase Firestore Listener for Push Alerts
   useEffect(() => {
     const q = query(collection(db, 'alerts'), orderBy('createdAt', 'desc'), limit(1));
