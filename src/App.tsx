@@ -102,16 +102,33 @@ export default function App() {
 
   // Install Modal Auto-show
   useEffect(() => {
-    const hasSeenPrompt = sessionStorage.getItem('etherfm_install_prompted');
-    // Only show on root path (not login screen) and if not already prompted in this session
-    if (!hasSeenPrompt && !showLogin) {
-      // Delay it slightly for a better UX
+    // Check if running as PWA (standalone)
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                         ('standalone' in navigator && (navigator as any).standalone);
+    
+    // Check if user already installed it
+    const hasInstalledFlag = localStorage.getItem('etherfm_app_installed');
+    const hasSeenPromptSession = sessionStorage.getItem('etherfm_install_prompted');
+
+    // Listen for successful native install
+    const handleAppInstalled = () => {
+      localStorage.setItem('etherfm_app_installed', 'true');
+    };
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    // Only show if not in standalone app, not installed before, and not on login screen
+    if (!isStandalone && !hasInstalledFlag && !hasSeenPromptSession && !showLogin) {
       const timer = setTimeout(() => {
         setIsInstallModalOpen(true);
         sessionStorage.setItem('etherfm_install_prompted', 'true');
       }, 2000);
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+        window.removeEventListener('appinstalled', handleAppInstalled);
+      };
     }
+
+    return () => window.removeEventListener('appinstalled', handleAppInstalled);
   }, [showLogin]);
 
   // BroadcastChannel for cross-tab Notifications
@@ -359,7 +376,10 @@ export default function App() {
       <InstallModal
         isOpen={isInstallModalOpen}
         onClose={() => setIsInstallModalOpen(false)}
-        onInstalledComplete={() => showToast('¡ETHER FM agregada con éxito a la pantalla de inicio!')}
+        onInstalledComplete={() => {
+          localStorage.setItem('etherfm_app_installed', 'true');
+          showToast('¡ETHER FM agregada con éxito a la pantalla de inicio!');
+        }}
         station={station}
       />
 
