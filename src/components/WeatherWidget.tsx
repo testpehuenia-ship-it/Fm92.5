@@ -27,7 +27,7 @@ export const WeatherWidget: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center gap-1 bg-transparent px-2 py-2">
       <Clock className="w-5 h-5 text-[#ff24e4]" />
-      <span className="text-[16px] font-black font-mono tracking-wider text-[#0066ff] leading-none mt-1 animate-neon-breathe">
+      <span className="text-[16px] font-black font-mono tracking-wider text-white leading-none mt-1 animate-neon-breathe shadow-black drop-shadow-md">
         {time.hours}
       </span>
       <span className="text-[11px] font-bold text-[#849396] leading-none uppercase">
