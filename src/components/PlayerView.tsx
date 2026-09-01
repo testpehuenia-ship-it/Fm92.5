@@ -135,8 +135,8 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
         }}
       />
 
-      {/* Floating Weather & Time Widget */}
-      <div className="absolute top-4 right-4 z-20 scale-90 sm:scale-100 origin-top-right">
+      {/* Floating Clock Widget */}
+      <div className="absolute top-4 left-4 z-20 scale-90 sm:scale-100 origin-top-left">
         <WeatherWidget />
       </div>
 

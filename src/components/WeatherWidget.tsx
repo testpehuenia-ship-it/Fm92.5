@@ -1,128 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Thermometer, Clock } from 'lucide-react';
-
-interface WeatherData {
-  city: string;
-  temp: number | null;
-  loading: boolean;
-  error: string | null;
-}
+import { Clock } from 'lucide-react';
 
 export const WeatherWidget: React.FC = () => {
-  const [time, setTime] = useState<string>('');
-  const [weather, setWeather] = useState<WeatherData>({
-    city: 'Buscando...',
-    temp: null,
-    loading: true,
-    error: null
-  });
+  const [time, setTime] = useState<{ hours: string, ampm: string }>({ hours: '', ampm: '' });
 
-  // Clock effect
   useEffect(() => {
     const updateTime = () => {
-      setTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+      const now = new Date();
+      let h = now.getHours();
+      const m = now.getMinutes();
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      const formattedMin = m < 10 ? `0${m}` : m;
+      setTime({
+        hours: `${h}:${formattedMin}`,
+        ampm: ampm
+      });
     };
     updateTime();
     const interval = setInterval(updateTime, 60000);
     return () => clearInterval(interval);
   }, []);
 
-  // Weather and Geolocation effect
-  useEffect(() => {
-    let mounted = true;
-
-    const fetchWeatherAndLocation = async (lat: number, lon: number) => {
-      try {
-        // 1. Get City Name
-        const geoRes = await fetch(
-          `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=es`
-        );
-        const geoData = await geoRes.json();
-        const cityName = geoData.city || geoData.locality || geoData.principalSubdivision || 'Tu Ciudad';
-
-        // 2. Get Temperature
-        const weatherRes = await fetch(
-          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m`
-        );
-        const weatherData = await weatherRes.json();
-        const temp = weatherData.current?.temperature_2m;
-
-        if (mounted) {
-          setWeather({
-            city: cityName,
-            temp: temp,
-            loading: false,
-            error: null
-          });
-        }
-      } catch (err) {
-        if (mounted) {
-          setWeather(prev => ({ ...prev, loading: false, error: 'Sin conexión' }));
-        }
-      }
-    };
-
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          fetchWeatherAndLocation(position.coords.latitude, position.coords.longitude);
-        },
-        (error) => {
-          if (mounted) {
-            setWeather({
-              city: 'Local',
-              temp: null,
-              loading: false,
-              error: 'Ubicación denegada'
-            });
-          }
-        },
-        // Using low accuracy is faster and enough for city-level weather
-        { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
-      );
-    } else {
-      setWeather(prev => ({ ...prev, loading: false, error: 'No soportado' }));
-    }
-
-    return () => { mounted = false; };
-  }, []);
+  if (!time.hours) return null;
 
   return (
-    <div className="flex items-center gap-4 bg-[#0e0e13]/60 border border-[#3b494c]/50 rounded-full px-4 py-2 backdrop-blur-md shadow-lg transition-all hover:bg-[#0e0e13]/80 hover:border-[#0066ff]/30">
-      
-      {/* Location & Temp */}
-      <div className="flex items-center gap-3 pr-4 border-r border-[#3b494c]/50">
-        {weather.loading ? (
-          <span className="text-[12px] text-[#849396] animate-pulse font-medium">Ubicando...</span>
-        ) : (
-          <>
-            <div className="flex items-center gap-1.5 text-[#e4e1e9]">
-              <MapPin className="w-3.5 h-3.5 text-[#0066ff]" />
-              <span className="text-[12px] font-semibold tracking-wide truncate max-w-[100px]">
-                {weather.city}
-              </span>
-            </div>
-            
-            {weather.temp !== null && (
-              <div className="flex items-center gap-1 text-[#e4e1e9]">
-                <Thermometer className="w-3.5 h-3.5 text-[#25D366]" />
-                <span className="text-[12px] font-bold font-mono">
-                  {Math.round(weather.temp)}°
-                </span>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-
-      {/* Time */}
-      <div className="flex items-center gap-1.5 text-[#00e5ff]">
-        <Clock className="w-4 h-4" />
-        <span className="text-[14px] font-black font-mono tracking-wider">
-          {time}
-        </span>
-      </div>
-
+    <div className="flex flex-col items-center justify-center gap-1 bg-[#0e0e13]/60 border border-[#0066ff]/40 rounded-xl px-3 py-3 backdrop-blur-md shadow-[0_0_15px_rgba(0,102,255,0.2)] transition-all hover:border-[#ff24e4]/60">
+      <Clock className="w-5 h-5 text-[#ff24e4]" />
+      <span className="text-[16px] font-black font-mono tracking-wider text-[#0066ff] leading-none mt-1">
+        {time.hours}
+      </span>
+      <span className="text-[11px] font-bold text-[#849396] leading-none uppercase">
+        {time.ampm}
+      </span>
     </div>
   );
 };
