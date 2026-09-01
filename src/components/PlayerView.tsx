@@ -140,7 +140,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
         className="relative z-10 w-full max-w-[420px] h-full md:h-auto rounded-[32px] overflow-hidden bg-black/25 border-2 border-[#0066ff] animate-neon-breathe flex flex-col transition-all duration-300"
       >
         {/* Content Area */}
-        <div className="flex flex-col items-center justify-between h-full p-4 sm:p-6 pt-6 pb-6 gap-4">
+        <div className="flex flex-col items-center justify-between h-full p-4 sm:p-6 pt-5 pb-5 gap-3 sm:gap-4">
           {/* Frequency Dial Pill */}
           <div className="text-center w-full flex flex-col items-center">
             <div className="rounded-full px-5 py-1.5 border border-[#0066ff] bg-black/30 flex items-center gap-2.5 shadow-[0_0_12px_rgba(0,229,255,0.5)]">
@@ -152,7 +152,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
           </div>
 
           {/* Glowing Volume / Dial Ring */}
-          <div className="relative rounded-full border border-[#0066ff] shadow-[inset_0_0_18px_rgba(0,229,255,0.6)] flex items-center justify-center my-1 w-32 h-32 bg-black/30 group">
+          <div className="relative rounded-full border border-[#0066ff] shadow-[inset_0_0_18px_rgba(0,229,255,0.6)] flex items-center justify-center my-1 w-28 h-28 sm:w-32 sm:h-32 bg-black/30 group">
             {/* Outer Glow Ring */}
             <div 
               className="absolute inset-0 rounded-full border border-[#0066ff] shadow-[0_0_20px_rgba(0,229,255,0.8)] transition-all duration-300"
@@ -265,28 +265,29 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
             <button 
               id="btn-whatsapp-message"
               onClick={onOpenWhatsApp}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full border-2 border-[#25D366] text-[#25D366] font-semibold text-[14px] shadow-[0_0_20px_rgba(37,211,102,0.6)] hover:bg-[#25D366]/20 transition-all active:scale-95 bg-black/40"
+              className="flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full border-2 border-[#25D366] text-[#25D366] font-semibold text-[13px] sm:text-[14px] shadow-[0_0_20px_rgba(37,211,102,0.6)] hover:bg-[#25D366]/20 transition-all active:scale-95 bg-black/40"
             >
               <MessageCircle className="w-4 h-4 fill-[#25D366]" />
               <span>Escríbenos</span>
             </button>
+          </div>
+
+          {/* Footer / Credits INSIDE */}
+          <div className="w-full text-center mt-1">
+            <p className="text-[10px] sm:text-[11px] font-medium tracking-wide flex items-center justify-center gap-1 opacity-80">
+              <span className="text-[#849396]">Diseño</span>
+              <a href="https://adnqn.ar/" target="_blank" rel="noopener noreferrer" className="hover:opacity-100 transition-opacity">
+                <span className="text-[#0066ff] drop-shadow-[0_0_8px_#0066ff]">ADNQN</span>
+                <span className="text-[#ffd700]">.ar</span>
+              </a>
+              <span className="text-[#849396]">2026</span>
+            </p>
           </div>
         </div>
 
 
       </div>
 
-      {/* Footer / Credits */}
-      <div className="relative z-10 mt-6 text-center">
-        <p className="text-[11px] font-medium tracking-wide flex items-center justify-center gap-1">
-          <span className="text-[#849396]">Diseño</span>
-          <a href="https://adnqn.ar/" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
-            <span className="text-[#0066ff] drop-shadow-[0_0_8px_#0066ff]">ADNQN</span>
-            <span className="text-[#ffd700]">.ar</span>
-          </a>
-          <span className="text-[#849396]">2026</span>
-        </p>
-      </div>
     </div>
   );
 };
